@@ -1,0 +1,10 @@
+# source.yml: repo-level metadata for `ludus source list`. The whole file is
+# optional — when absent, Ludus derives `name` from the URL and `homepage`
+# from the git remote. See https://docs.ludus.cloud/docs/using-ludus/sources
+
+manifest_version: 1
+name: "Custom Ludus Templates"
+description: "Community Packer templates not covered by the Bad Sector Labs source (starting with Alpine Linux)."
+authors:
+  - "Jesse Moore <jesse.f.moore@gmail.com>"
+license: MIT

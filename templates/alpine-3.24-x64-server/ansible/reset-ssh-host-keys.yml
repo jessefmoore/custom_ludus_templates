@@ -1,0 +1,22 @@
+- name: Create and enable SSH host keys regeneration service
+  hosts: all
+  become: true
+  tasks:
+    - name: Create OpenRC local.d script for SSH host key regeneration
+      ansible.builtin.copy:
+        dest: /etc/local.d/regenerate-ssh-host-keys.start
+        content: |
+          #!/bin/sh
+          rm -f /etc/ssh/ssh_host_*_key*
+          ssh-keygen -A
+          rc-service sshd restart
+          rm -f /etc/local.d/regenerate-ssh-host-keys.start
+          rc-update del local default
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Enable the local OpenRC service at the default runlevel
+      ansible.builtin.command: rc-update add local default
+      args:
+        creates: /etc/runlevels/default/local
