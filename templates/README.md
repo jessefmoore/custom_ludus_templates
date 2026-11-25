@@ -12,6 +12,7 @@ produce the VM image.
 | [`alpine-3.24-x64-server/`](alpine-3.24-x64-server/) | `alpine-3.24-x64-server-template` | Alpine Linux 3.24 (`virt` flavor) minimal x64 server. |
 | [`alpine-3.23-x64-server/`](alpine-3.23-x64-server/) | `alpine-3.23-x64-server-template` | Alpine Linux 3.23 (`virt` flavor) minimal x64 server. Builds from a pre-uploaded ISO instead of a downloaded one. |
 | [`fedora-45-x64-desktop/`](fedora-45-x64-desktop/) | `fedora-45-x64-desktop-template` | Fedora 45 Workstation (GNOME desktop) x64. Server netinst media + GRUB command-line boot, not the Workstation Live ISO. |
+| [`fedora-coreos-stable-x64-server/`](fedora-coreos-stable-x64-server/) | `fedora-coreos-stable-x64-server-template` | Fedora CoreOS (`stable` stream) x64, immutable/container-focused. Ignition instead of kickstart, SSH-key-only login, python3 + qemu-guest-agent layered on via `rpm-ostree`. |
 
 See each template's own README for build-specific notes, and the top-level
 [README's "Known limitations"](../README.md#known-limitations) section for

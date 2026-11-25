@@ -1,0 +1,42 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDV/GndHWznBSjOwscOo5lczTUiPWbYhBGk6TlDMGT/B ludus-fedora-coreos-template
+systemd:
+  units:
+    # The package layer on top of the base ostree image - rpm-ostree's
+    # own filesystem content only becomes active after the reboot this
+    # triggers, so the enablement symlink below is created now (Ignition
+    # doesn't require the target unit file to exist yet) and the unit
+    # itself just starts working once that reboot lands.
+    - name: qemu-guest-agent.service
+      enabled: true
+    # Ignition runs once on first boot, before any rpm-ostree layering -
+    # python3 (for Ansible) and qemu-guest-agent (so Ludus can detect the
+    # VM's IP at all) aren't in the base CoreOS image, so layer them here.
+    # Before=sshd.service keeps Packer/Ansible from connecting over SSH
+    # (the Ignition-provisioned key already works) before this completes -
+    # it never "finishes" in the normal sense since its last action is
+    # rebooting, which is exactly what holds sshd back on this boot.
+    # ConditionPathExists guards against re-running after that reboot.
+    - name: layer-ludus-packages.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer python3 and qemu-guest-agent for Ludus/Ansible
+        ConditionPathExists=!/etc/ludus-packages-layered
+        After=network-online.target
+        Wants=network-online.target
+        Before=sshd.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/rpm-ostree install -y python3 qemu-guest-agent
+        ExecStart=/usr/bin/touch /etc/ludus-packages-layered
+        ExecStart=/usr/bin/systemctl reboot
+
+        [Install]
+        WantedBy=multi-user.target

@@ -35,6 +35,7 @@ ludus templates build -n alpine-3.24-x64-server-template
 | `alpine-3.24-x64-server-template` | Alpine Linux 3.24 (`virt` flavor) minimal x64 server. Credentials: `root` / `alpine`. See [templates/alpine-3.24-x64-server/README.md](templates/alpine-3.24-x64-server/README.md) for build details. |
 | `alpine-3.23-x64-server-template` | Alpine Linux 3.23 (`virt` flavor) minimal x64 server. Credentials: `root` / `alpine`. Builds from an ISO you upload yourself rather than one Packer downloads — see [templates/alpine-3.23-x64-server/README.md](templates/alpine-3.23-x64-server/README.md). |
 | `fedora-45-x64-desktop-template` | Fedora 45 Workstation (GNOME desktop) x64. Credentials: `localuser` / `password` (wheel/sudo); `root` / `root` for Packer's own build-time SSH. See [templates/fedora-45-x64-desktop/README.md](templates/fedora-45-x64-desktop/README.md) for the build's history — six attempts, each a genuinely different fix. |
+| `fedora-coreos-stable-x64-server-template` | Fedora CoreOS (`stable` stream) x64, immutable/container-focused server. SSH-key-only login as `core` (no password, ever) — key shipped at `templates/fedora-coreos-stable-x64-server/keys/id_ed25519`. Configured via Ignition, not kickstart; python3 and qemu-guest-agent are layered on top of the base image via `rpm-ostree`. See [templates/fedora-coreos-stable-x64-server/README.md](templates/fedora-coreos-stable-x64-server/README.md) for why this one installs via a typed shell command instead of kernel-arg automation. |
 
 ## Known limitations
 

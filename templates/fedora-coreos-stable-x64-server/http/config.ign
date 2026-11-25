@@ -1,0 +1,28 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDV/GndHWznBSjOwscOo5lczTUiPWbYhBGk6TlDMGT/B ludus-fedora-coreos-template"
+        ]
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "enabled": true,
+        "name": "qemu-guest-agent.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Layer python3 and qemu-guest-agent for Ludus/Ansible\nConditionPathExists=!/etc/ludus-packages-layered\nAfter=network-online.target\nWants=network-online.target\nBefore=sshd.service\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/rpm-ostree install -y python3 qemu-guest-agent\nExecStart=/usr/bin/touch /etc/ludus-packages-layered\nExecStart=/usr/bin/systemctl reboot\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "layer-ludus-packages.service"
+      }
+    ]
+  }
+}
