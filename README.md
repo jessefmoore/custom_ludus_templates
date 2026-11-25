@@ -1,5 +1,7 @@
 # Custom Ludus Templates
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A [Ludus source](https://docs.ludus.cloud/docs/using-ludus/sources) — a
 versioned bundle of Packer templates, served from this git repo, a tarball,
 or a local directory. `ludus source add` registers the contents in one step.
@@ -19,10 +21,10 @@ ludus source add -d ./custom_ludus_templates --id custom-templates
 ludus templates build -n alpine-3.24-x64-server-template
 ```
 
-Once pushed to a git host (GitHub, GitLab, self-hosted — any works):
+Or straight from this repo:
 
 ```bash
-ludus source add https://github.com/<you>/custom_ludus_templates
+ludus source add https://github.com/jessefmoore/custom_ludus_templates
 ludus templates build -n alpine-3.24-x64-server-template
 ```
 
