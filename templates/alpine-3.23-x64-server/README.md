@@ -48,3 +48,9 @@ any supported Alpine channel.
 Same as `alpine-3.24-x64-server`: VMs built from this template **must** be
 marked `unmanaged: true` in the range config — see the repo README's
 ["Known limitations"](../../README.md#known-limitations).
+
+**Don't SSH to the hostname or to `ip_last_octet` — both are wrong for this
+VM.** Confirmed live: the router's DNS/`/etc/hosts` are generated from the
+config's `ip_last_octet` regardless of `unmanaged` status, but this VM never
+gets told to use that address — it's on whatever its DHCP lease actually is.
+Run `ludus range list` and SSH to the `ip` field it reports for this VM.

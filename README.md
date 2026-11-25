@@ -74,6 +74,25 @@ over SSH after deploy) rather than relying on Ludus to assign it.
 This isn't specific to Alpine — the same applies to any template built on a
 distro outside Ludus's recognized `group_vars` list.
 
+**The DNS record and `ip_last_octet` for an `unmanaged: true` VM are wrong —
+don't SSH to either.** Confirmed live on a real deploy (`alpine-3.24`,
+`fedora-45-x64-desktop`, `fedora-coreos-stable-x64-server`, all
+`ip_last_octet: 10/11/12` on the same VLAN): the router's DNS and generated
+`/etc/hosts` entries are written straight from the config's `ip_last_octet`
+regardless of `unmanaged` status, but the VM itself never got told to use
+that address — it's still floating on whatever the router's DHCP pool
+handed out. In that test the config said `.10`/`.11`/`.12`; the VMs were
+actually reachable at `.115`/`.158`/`.162`. Trying to SSH to the hostname
+(e.g. `ssh root@{{ range_id }}-alpine-test`) or to the configured
+`ip_last_octet` address will silently connect to nothing and time out —
+indistinguishable from an actual network fault, but it isn't one.
+
+Find the real address with `ludus range list` (or `GET /range` /
+`listAllRange` over the API) and SSH to the `ip` field it reports for that
+VM — that value comes from Proxmox/the guest agent, not from the range
+config, so it's always accurate regardless of managed/unmanaged status.
+Don't trust `ludus range etchosts`/DNS for these VMs.
+
 ## Local development workflow
 
 ```bash

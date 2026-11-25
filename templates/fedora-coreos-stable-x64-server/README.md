@@ -164,3 +164,11 @@ as Alpine and Fedora Workstation. See the repo README's
 
 Also worth remembering when actually using a deployed VM: SSH in with
 `-i keys/id_ed25519 core@<ip>`, not a password prompt.
+
+**`<ip>` is not the hostname and not `ip_last_octet` — both are wrong for
+this VM.** Confirmed live, reproduced twice on a real deploy: the router's
+DNS/`/etc/hosts` are generated from the config's `ip_last_octet` regardless
+of `unmanaged` status, but this VM never gets told to use that address —
+it's on whatever its DHCP lease actually is, which can differ from
+`ip_last_octet` and can change on redeploy. Run `ludus range list` and use
+the `ip` field it reports for this VM as `<ip>` above.

@@ -84,11 +84,16 @@ has moved to GRUB2 across all its media, live or otherwise, not just Live.
    deploying a clone into a real Ludus range (to validate it, not just
    the Packer build) surfaced two more issues, both found by logging into
    the clone directly at the Proxmox console rather than over SSH (which
-   was itself unreachable - that turned out to be an unrelated, external
-   network-routing side effect of the range's router having been
-   recreated, confirmed by the Alpine template in the same range being
-   *equally* unreachable at the same time, and the router's own deploy
-   log showing zero failures):
+   was itself unreachable at the time - *mis*-attributed then to an
+   unrelated, external network-routing side effect of the range's router
+   having been recreated, since the Alpine template in the same range was
+   equally unreachable and the router's own deploy log showed zero
+   failures. Root cause confirmed later, live, against this exact
+   range/template combo: it's the `unmanaged: true`-vs-DNS mismatch
+   documented under "Using this template in a range" below, not a routing
+   fault. `router deploy log showing zero failures` was actually the
+   correct signal all along - the router really had no failures; it just
+   also had no idea the VM wasn't at the address its own DNS said it was):
    - It booted to a **text login**, not GDM. `@^workstation-product-environment`
      doesn't reliably flip the default systemd target on its own; `%post`
      now sets it explicitly with `systemctl set-default graphical.target`.
@@ -139,9 +144,13 @@ without a matching `group_vars` file, the same `ansible_user` fallback
 failure that affects Alpine applies here too — confirmed live, not just
 inferred from the missing file.
 
-The sandbox used to validate this template over SSH has its own,
-unrelated, reproducible network-path limitation reaching this particular
-range (confirmed separately against the Alpine template in the same
-range, equally affected) - final confirmation here was done at the
-Proxmox console instead of over SSH for that reason, not because of
-anything wrong with the template.
+**Don't SSH to the hostname or to `ip_last_octet` — both are wrong for this
+VM.** Confirmed live, reproduced twice on a real deploy: the router's
+DNS/`/etc/hosts` are generated from the config's `ip_last_octet` regardless
+of `unmanaged` status, but this VM never gets told to use that address —
+it's on whatever its DHCP lease actually is, which can differ from
+`ip_last_octet` and can change on redeploy. (This is what the "Why not Live
+media" section above originally mis-blamed on an unrelated routing issue —
+it wasn't; it's this.) Run `ludus range list` and SSH to the `ip` field it
+reports for this VM. Details: repo README's
+["Known limitations"](../../README.md#known-limitations).

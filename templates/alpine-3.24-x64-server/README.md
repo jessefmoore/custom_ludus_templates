@@ -52,6 +52,14 @@ marked `unmanaged: true` in the range config — see the repo README's
 version: Ludus has no `group_vars` for Alpine, so its post-clone management
 plays can't connect, and skipping them via `unmanaged: true` is the fix).
 
+**Don't SSH to the hostname or to `ip_last_octet` — both are wrong for this
+VM.** Confirmed live: the router's DNS and `/etc/hosts` are generated from
+the config's `ip_last_octet` regardless of `unmanaged` status, but this VM
+never gets told to use that address — it's on whatever its DHCP lease
+actually is, which can differ and can change on redeploy. Run
+`ludus range list` and SSH to the `ip` field it reports for this VM.
+Details: repo README's ["Known limitations"](../../README.md#known-limitations).
+
 ## Version pinning
 
 `iso_url`/`iso_checksum` are pinned to the 3.24.3 **ISO** (released
