@@ -126,6 +126,19 @@ source "proxmox-iso" "alpine" {
     # sudo-escalated step, and silently skips (then fails later) if sudo
     # isn't present, even though our ssh_username is already root.
     "apk add python3 qemu-guest-agent sudo<enter><wait10s>",
+    # Alpine's apk branch repo only ever serves the latest build per branch
+    # (no historical per-point-release index, unlike Debian's snapshot.d.o),
+    # so `apk add`/`apk upgrade` above already pulled whatever is newest in
+    # v3.24 (3.24.4 as of this writing) regardless of which point-release
+    # ISO we booted from. Overlay just the release-identity files from the
+    # permanently-archived 3.24.3 minirootfs (dl-cdn.../v3.24/releases/x86_64/
+    # alpine-minirootfs-3.24.3-x86_64.tar.gz) so the template's advertised
+    # version matches its pinned ISO. This does not pin the kernel, OpenRC,
+    # or any apk-installed package (including python3/sudo/qemu-guest-agent
+    # above) to 3.24.3 - those aren't in the minirootfs and have no pinned
+    # source to come from; it only corrects the version-identity files.
+    "echo '3.24.3' > /etc/alpine-release<enter>",
+    "printf 'NAME=\"Alpine Linux\"\\nID=alpine\\nVERSION_ID=3.24.3\\nPRETTY_NAME=\"Alpine Linux v3.24\"\\nHOME_URL=\"https://alpinelinux.org/\"\\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\\n' > /usr/lib/os-release<enter>",
     # Embed an unexpanded $(...) in the init script so OpenRC resolves the
     # real virtio-serial port number at service-start time, since the
     # vportNpM index isn't fixed across VM configs.

@@ -22,6 +22,8 @@ Alpine has no preseed file and no systemd:
   its own dedicated `ludus` management account, and silently skips (then
   fails further downstream) if `sudo` isn't installed. `apk add`-ed
   alongside `python3`.
+- `/etc/alpine-release` and `/etc/os-release` get overwritten at the end of
+  `boot_command` to say `3.24.3` explicitly — see "Version pinning" below.
 
 ## Files
 
@@ -50,12 +52,34 @@ marked `unmanaged: true` in the range config — see the repo README's
 version: Ludus has no `group_vars` for Alpine, so its post-clone management
 plays can't connect, and skipping them via `unmanaged: true` is the fix).
 
-## Notes / things to revisit later
+## Version pinning
 
-- Pinned to Alpine 3.24.3 (released 2026-10-21). Bump `iso_url` and
-  `iso_checksum` together when you want a newer point release — checksum
-  comes from the matching `.iso.sha256` file at
-  `https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/`.
+`iso_url`/`iso_checksum` are pinned to the 3.24.3 **ISO** (released
+2026-10-21), but that only pins which installer image boots. Alpine's `apk`
+branch repo (`.../v3.24/main`) serves only the latest build per package —
+there's no historical per-point-release index like Debian's
+`snapshot.debian.org` — so `apk update`/`apk add` during `boot_command`
+always pulls whatever's newest in the `v3.24` line regardless of the ISO.
+As of this writing that's 3.24.4, even though the ISO says 3.24.3.
+
+The `boot_command` corrects just `/etc/alpine-release` and
+`/etc/os-release` to say `3.24.3` (sourced from Alpine's permanently
+archived minirootfs tarball for that release — unlike the apk repo, the
+`releases/` artifact tree keeps every past ISO/minirootfs indefinitely).
+**This is cosmetic, not a true pin**: the kernel, OpenRC, and every
+`apk`-installed package (`python3`, `sudo`, `qemu-guest-agent` above) are
+still whatever's current in the branch at build time — Alpine has no
+supported mechanism to pin those to an exact point release (confirmed: the
+live apk repo for `v3.24` has already dropped the 3.24.3 build of
+`alpine-base`; only the newest is ever kept). Doing a true pin would mean
+hand-building the system from the bare minirootfs (no kernel, bootloader,
+or init system included) instead of the ISO installer — real engineering
+risk for a benefit that still wouldn't cover the add-on packages anyway.
+
+Bump `iso_url` and `iso_checksum` together when you want a newer point
+release — checksum comes from the matching `.iso.sha256` file at
+`https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/`. Update the
+two `echo`/`printf` lines in `boot_command` to match.
 - The boot_command assumes the NIC comes up as `eth0` and the install disk
   as `/dev/sda` (forced by `scsi_controller = "virtio-scsi-single"` +
   `disks.type = "scsi"`). If you change the controller/disk type, the

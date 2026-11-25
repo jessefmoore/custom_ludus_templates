@@ -10,6 +10,8 @@ produce the VM image.
 | Directory | Template name | Description |
 | --- | --- | --- |
 | [`alpine-3.24-x64-server/`](alpine-3.24-x64-server/) | `alpine-3.24-x64-server-template` | Alpine Linux 3.24 (`virt` flavor) minimal x64 server. |
+| [`alpine-3.23-x64-server/`](alpine-3.23-x64-server/) | `alpine-3.23-x64-server-template` | Alpine Linux 3.23 (`virt` flavor) minimal x64 server. Builds from a pre-uploaded ISO instead of a downloaded one. |
+| [`fedora-45-x64-desktop/`](fedora-45-x64-desktop/) | `fedora-45-x64-desktop-template` | Fedora 45 Workstation (GNOME desktop) x64. Server netinst media + GRUB command-line boot, not the Workstation Live ISO. |
 
 See each template's own README for build-specific notes, and the top-level
 [README's "Known limitations"](../README.md#known-limitations) section for

@@ -5,9 +5,10 @@ versioned bundle of Packer templates, served from this git repo, a tarball,
 or a local directory. `ludus source add` registers the contents in one step.
 
 This is a templates-only source (a source doesn't need to ship blueprints or
-Ansible roles/collections). It starts with an Alpine Linux template that
-isn't covered by the [Bad Sector Labs source](https://github.com/badsectorlabs/ludus-source-bsl),
-and is meant to grow to hold other custom templates over time.
+Ansible roles/collections). It covers Linux distros and editions not
+shipped by the [Bad Sector Labs source](https://github.com/badsectorlabs/ludus-source-bsl)
+(Alpine; Fedora Workstation), and is meant to grow to hold other custom
+templates over time.
 
 ## Installing
 
@@ -30,10 +31,12 @@ ludus templates build -n alpine-3.24-x64-server-template
 | Template | Description |
 | --- | --- |
 | `alpine-3.24-x64-server-template` | Alpine Linux 3.24 (`virt` flavor) minimal x64 server. Credentials: `root` / `alpine`. See [templates/alpine-3.24-x64-server/README.md](templates/alpine-3.24-x64-server/README.md) for build details. |
+| `alpine-3.23-x64-server-template` | Alpine Linux 3.23 (`virt` flavor) minimal x64 server. Credentials: `root` / `alpine`. Builds from an ISO you upload yourself rather than one Packer downloads — see [templates/alpine-3.23-x64-server/README.md](templates/alpine-3.23-x64-server/README.md). |
+| `fedora-45-x64-desktop-template` | Fedora 45 Workstation (GNOME desktop) x64. Credentials: `localuser` / `password` (wheel/sudo); `root` / `root` for Packer's own build-time SSH. See [templates/fedora-45-x64-desktop/README.md](templates/fedora-45-x64-desktop/README.md) for the build's history — six attempts, each a genuinely different fix. |
 
 ## Known limitations
 
-**Any VM built from `alpine-3.24-x64-server-template` must be marked
+**Any VM built from any template in this repo must be marked
 `unmanaged: true` in its range-config entry:**
 
 ```yaml
@@ -51,10 +54,12 @@ ludus:
 Why: Ludus's core range-management Ansible identifies a Linux VM's
 connection credentials by distro, using `group_vars` files it ships for
 `debian`, `ubuntu`, `kali`, `rocky`, `rhel`, `centos`, `almalinux`, `macos`,
-and `windows`. There's no `alpine.yml`. Without a match, Ludus's post-clone
-plays fall back to connecting as a `ludus` management user that's never
-created on the guest, and the deploy fails with an `UNREACHABLE` error
-trying to open `/home/ludus/.ansible/tmp`.
+and `windows`. There's no `alpine.yml` and no `fedora.yml` either (checked
+directly, not assumed — same missing-group_vars failure confirmed live for
+both). Without a match, Ludus's post-clone plays fall back to connecting
+as a `ludus` management user that's never created on the guest, and the
+deploy fails with an `UNREACHABLE` error trying to open
+`/home/ludus/.ansible/tmp`.
 
 `unmanaged: true` excludes the VM from those plays entirely, which also means
 Ludus's own static-IP-assignment step gets skipped — the VM keeps whatever
